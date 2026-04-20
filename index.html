@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Тест: Физическая подготовка ВС РФ 2026</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            background: #f0f2f5;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: 12px 8px;
+            font-size: 14px;
+            line-height: 1.4;
+            touch-action: manipulation;
+        }
+        .test-wrapper { max-width: 100%; margin: 0 auto; }
+        .test-card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 8px 25px -8px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+        .test-header {
+            background: #1e3a5f;
+            color: white;
+            padding: 16px 20px;
+        }
+        .test-header h1 { font-size: 1.3rem; margin-bottom: 6px; font-weight: 600; }
+        .test-header p { opacity: 0.9; font-size: 0.85rem; }
+        .quiz-body { padding: 16px 20px; }
+        .question-progress {
+            background: #e9ecef;
+            display: inline-block;
+            padding: 5px 14px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #1e3a5f;
+            margin-bottom: 14px;
+        }
+        .question-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            line-height: 1.45;
+            margin-bottom: 18px;
+            color: #0a1c2f;
+        }
+        .answers-area {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .answer-item {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 14px 16px;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            font-size: 0.95rem;
+            min-height: 50px;
+            user-select: none;
+        }
+        .answer-item:active { transform: scale(0.99); }
+        .answer-item:hover { background: #f1f5f9; border-color: #94a3b8; }
+        .answer-check {
+            width: 24px; height: 24px;
+            background: white;
+            border: 2px solid #cbd5e1;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .answer-item.radio-style .answer-check { border-radius: 50%; }
+        .answer-item.selected {
+            background: #eef2ff;
+            border-color: #2563eb;
+        }
+        .answer-item.selected .answer-check {
+            background: #2563eb;
+            border-color: #2563eb;
+            color: white;
+        }
+        /* Сопоставление — мобильная версия */
+        .match-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .match-col { width: 100%; }
+        .match-col h4 {
+            margin-bottom: 10px;
+            color: #1e3a5f;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        .match-left-item, .match-right-item {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-size: 0.9rem;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            user-select: none;
+        }
+        .match-left-item:active, .match-right-item:active { transform: scale(0.99); }
+        .match-left-item.selected, .match-right-item.selected {
+            background: #dbeafe;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+        .match-left-item.matched, .match-right-item.matched {
+            background: #dcfce7;
+            border-color: #22c55e;
+            opacity: 0.8;
+            cursor: default;
+        }
+        .match-pairs {
+            margin-top: 14px;
+            background: #f1f5f9;
+            border-radius: 14px;
+            padding: 12px 14px;
+            font-size: 0.85rem;
+        }
+        .match-pair {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #cbd5e1;
+            align-items: center;
+            gap: 8px;
+        }
+        .match-pair:last-child { border-bottom: none; }
+        .match-pair span:first-child { font-weight: 600; width: 52%; font-size: 0.9rem; }
+        .match-pair span:last-child { width: 48%; color: #1e3a5f; text-align: right; font-size: 0.9rem; }
+        .remove-pair-btn {
+            background: #fef2f2;
+            border: none;
+            color: #dc2626;
+            cursor: pointer;
+            font-size: 1.2rem;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 6px;
+            flex-shrink: 0;
+        }
+        .remove-pair-btn:active { background: #fecaca; }
+        .nav-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 8px;
+            position: sticky;
+            bottom: 0;
+            background: white;
+            padding: 12px 0 4px;
+            border-top: 1px solid #e2e8f0;
+        }
+        button {
+            background: white;
+            border: 2px solid #cbd5e1;
+            padding: 14px 20px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            border-radius: 60px;
+            cursor: pointer;
+            transition: 0.15s;
+            color: #1e293b;
+            min-height: 50px;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        button:active { transform: scale(0.98); }
+        button.primary-btn {
+            background: #1e3a5f;
+            border-color: #1e3a5f;
+            color: white;
+        }
+        button.primary-btn:active { background: #0f2a48; }
+        button:hover:not(.primary-btn) { background: #e2e8f0; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .result-stats {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 14px;
+            text-align: center;
+        }
+        .question-review {
+            background: white;
+            border-radius: 14px;
+            padding: 14px;
+            margin-bottom: 12px;
+            border-left: 4px solid #cbd5e1;
+        }
+        .question-review.correct { border-left-color: #22c55e; }
+        .question-review.incorrect { border-left-color: #dc2626; }
+        .question-review-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+        .question-review-header.correct { color: #15803d; }
+        .question-review-header.incorrect { color: #dc2626; }
+        .question-review-text {
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            color: #1e293b;
+            line-height: 1.4;
+        }
+        .answer-review {
+            padding: 8px 12px;
+            margin: 4px 0;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            line-height: 1.3;
+        }
+        .answer-review.user {
+            background: #f1f5f9;
+            border-left: 3px solid #64748b;
+        }
+        .answer-review.user.correct {
+            background: #dcfce7;
+            border-left-color: #22c55e;
+        }
+        .answer-review.user.incorrect {
+            background: #fef2f2;
+            border-left-color: #dc2626;
+        }
+        .answer-review.correct-answer {
+            background: #f0fdf4;
+            border-left: 3px solid #22c55e;
+            color: #15803d;
+        }
+        .restart-button {
+            background: #0f172a;
+            color: white;
+            border: none;
+            width: 100%;
+            margin-top: 16px;
+            padding: 14px;
+            font-size: 0.95rem;
+            border-radius: 60px;
+            min-height: 50px;
+        }
+        .footer-note {
+            text-align: center;
+            font-size: 0.7rem;
+            color: #475569;
+            padding: 14px 20px 20px;
+            border-top: 1px solid #e2e8f0;
+            line-height: 1.3;
+        }
+        /* Улучшения для мобильных */
+        @media (max-width: 480px) {
+            body { padding: 8px 4px; font-size: 13px; }
+            .test-card { border-radius: 20px; }
+            .test-header { padding: 14px 16px; }
+            .test-header h1 { font-size: 1.2rem; }
+            .quiz-body { padding: 14px 16px; }
+            .question-text { font-size: 1.05rem; }
+            .answer-item { padding: 12px 14px; font-size: 0.9rem; min-height: 48px; }
+            .match-left-item, .match-right-item { padding: 10px 12px; font-size: 0.85rem; min-height: 42px; }
+            .match-pair span:first-child, .match-pair span:last-child { font-size: 0.85rem; }
+            button { padding: 12px 16px; font-size: 0.9rem; min-height: 46px; }
+            .nav-buttons { padding: 10px 0 2px; gap: 8px; }
+        }
+        /* Предотвращение выделения текста при тапах */
+        .answer-item, .match-left-item, .match-right-item, button {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+<div class="test-wrapper">
+    <div class="test-card" id="app">
+        <div class="test-header">
+            <h1>🏋️‍♂️ Физическая подготовка ВС РФ</h1>
+            <p>30 вопросов • полный тест</p>
+        </div>
+        <div id="quizDynamicContent"></div>
+        <div class="footer-note">✔️ Порядок ответов случайный. Для сопоставления: тапните слева, затем справа.</div>
+    </div>
+</div>
+
+<script>
+    const QUESTION_BANK = [
+        {
+            text: "Каким руководящим документом определен порядок организации физической подготовки военнослужащих ВС РФ, в том числе требования к уровню физической подготовленности военнослужащих. (Выберете правильный ответ из предложенных).",
+            correct: ["Приказ МО РФ № 230 от 20.04.2023 г. (НФП-2023)"],
+            options: [
+                "Приказ МО РФ № 230 от 20.04.2023 г. (НФП-2023)",
+                "Приказ МО РФ № 308 от 30.05.2022г. (Об организации образовательной деятельности ф федеральных государственных организациях осуществляющих образовательную деятельность и находящихся в введении МО РФ РФ)",
+                "Федеральным законом « О физической культуре и спорте в Российской Федерации» (№ 329-ФЗ от 4.12.2007 г.)"
+            ],
+            type: "single"
+        },
+        {
+            text: "Что является целью физической подготовки? (Выберете правильный ответ из предложенных).",
+            correct: ["Успешное выполнение военнослужащими своих служебных обязанностей."],
+            options: [
+                "Успешное выполнение военнослужащими своих служебных обязанностей.",
+                "Положительная оценка по физической подготовленности.",
+                "Уровень физической подготовленности."
+            ],
+            type: "single"
+        },
+        {
+            text: "Перечислите задачи физической подготовки. (Выберете правильные ответы из предложенных).",
+            correct: [
+                "Развитие физических качеств у военнослужащих.",
+                "Формирование и совершенствование у военнослужащих военно-прикладных двигательных навыков.",
+                "Сплочение воинского коллектива."
+            ],
+            options: [
+                "Развитие физических качеств у военнослужащих.",
+                "Формирование и совершенствование у военнослужащих военно-прикладных двигательных навыков.",
+                "Сплочение воинского коллектива.",
+                "Получение теоретических знаний и формирование методических умений военнослужащих для проведения мероприятий физической подготовки.",
+                "Воспитание морально-волевых качеств."
+            ],
+            type: "multi"
+        },
+        {
+            text: "Укажите возрастные группы военнослужащих мужского пола по контракту для проверки и оценки физической подготовленности. (Выберете правильные ответы из предложенных).",
+            correct: [
+                "До 25 лет", "25-29 лет", "30-34 года", "35-39 лет", "40-44 года",
+                "45-49 лет", "50-54 года", "55-59 лет", "60 лет и старше"
+            ],
+            options: [
+                "До 20 лет", "До 25 лет", "25-29 лет", "30-34 года", "35-39 лет",
+                "40-44 года", "45-49 лет", "50-54 года", "55-59 лет", "60 лет и старше",
+                "60-64 года", "65 лет и старше"
+            ],
+            type: "multi"
+        },
+        {
+            text: "В каких формах проводится физическая подготовка в ВС РФ (согласно Наставлению по физической подготовке в ВС РФ). (Выберете правильные ответы из предложенных).",
+            correct: [
+                "Учебные занятия", "Утренняя физическая зарядка", "Спортивно-массовая работа",
+                "Физическая тренировка в процессе УБД."
+            ],
+            options: [
+                "Учебные занятия", "Утренняя физическая зарядка", "Спортивно-массовая работа",
+                "Физическая тренировка в процессе УБД.", "Зачеты по физической подготовке",
+                "Военно-спортивные соревнования", "Проверка уровня физической подготовленности"
+            ],
+            type: "multi"
+        },
+        {
+            text: "Меры предупреждения травматизма при  занятиях физической подготовкой  (согласно Наставлению по  физической подготовке в ВС РФ). (Выберете правильные ответы из предложенных).",
+            correct: [
+                "Дисциплинированность военнослужащих, знание  ими приемов страховки и  самостраховки , мер  по предупреждению травматизма.",
+                "Контроль  за соблюдением установленных норм и требований безопасности при проведени и физической подготовки.",
+                "Подготовка  мест пр оведения физической подготовки.",
+                "Проверка  исправности спортивных снарядов, тренажеров, оборудования, инвентаря и иных материальных средств, используемых при пр оведении физической подготовки.",
+                "Соблюдение  последовательности о бучения физическим упражнениям.",
+                "Соблюдение  военнослужащими техники вы полнения физических упражнений.",
+                "Помощью и страховкой при выполнении физических упражнений на сп ортивных снарядах и тренажерах.",
+                "Контроль  за состоянием военн ослужащих при выполнении физиче ских упражнений."
+            ],
+            options: [
+                "Дисциплинированность военнослужащих, знание  ими приемов страховки и  самостраховки , мер  по предупреждению травматизма.",
+                "Контроль  за соблюдением установленных норм и требований безопасности при проведени и физической подготовки.",
+                "Подготовка  мест пр оведения физической подготовки.",
+                "Проверка  исправности спортивных снарядов, тренажеров, оборудования, инвентаря и иных материальных средств, используемых при пр оведении физической подготовки.",
+                "Соблюдение  последовательности о бучения физическим упражнениям.",
+                "Соблюдение  военнослужащими техники вы полнения физических упражнений.",
+                "Помощью и страховкой при выполнении физических упражнений на сп ортивных снарядах и тренажерах.",
+                "Контроль  за состоянием военн ослужащих при выполнении физиче ских упражнений.",
+                "Четкое соблюдение структуры учебно-тренировочного занятия;",
+                "Наличие плана учебного тренировочного занятия и четкое его соблюдение."
+            ],
+            type: "multi"
+        },
+        {
+            text: "Для чего предназначена спортивно-массовая работа в ВС РФ  в соответствии с НФП? (Выберете правильный ответ из предложенных).",
+            correct: ["Для проведения с военнослужащими массовых спортивных мероприятий и пропаганды здорового образа жизни."],
+            options: [
+                "Для проведения с военнослужащими массовых спортивных мероприятий и пропаганды здорового образа жизни.",
+                "Для  проведения занятий по физической подготовке",
+                "Для  развития военно-прикладных двигательных навыков в составе подразделения"
+            ],
+            type: "single"
+        },
+        {
+            text: "По каким темам проводятся учебно-тренировочные занятия по физической подготовке в ВС РФ (согласно Наставлению по физи ческой подготовке в ВС РФ). (Выберете правильные ответы из предложенных).",
+            correct: [
+                "Сила.", "Быстрота.", "Выносливость.", "Ловкость.", "Ускоренное передвижение.",
+                "Преодоление препятствий.", "Рукопашный бой.", "Военно -прикладное плавание.",
+                "Специальные приемы и действия.", "Комплексное занятие."
+            ],
+            options: [
+                "Сила.", "Быстрота.", "Выносливость.", "Ловкость.", "Ускоренное передвижение.",
+                "Преодоление препятствий.", "Рукопашный бой.", "Военно -прикладное плавание.",
+                "Специальные приемы и действия.", "Комплексное занятие.",
+                "Легкая атлетика и ускоренное передвижение.", "Гимнастика и атлетическая подготовка.",
+                "Спортивные и подвижные игры.", "Плавание"
+            ],
+            type: "multi"
+        },
+        {
+            text: "Из каких частей состоит учебно-тренировочное занятие. (Выберете правильные ответы из предложенных).",
+            correct: ["Подготовительная", "Основная", "Заключительная"],
+            options: [
+                "Подготовительная", "Основная", "Заключительная", "Тренировка",
+                "Теоретический опрос", "Завершающая", "Заминка"
+            ],
+            type: "multi"
+        },
+        {
+            text: "Кто является руководителем утренней физической зарядки в подразделении. (Выберете правильный ответ из предложенных).",
+            correct: ["В о взводе (ему равному) проводится под руководством заместителя командира взвода или командира отделения"],
+            options: [
+                "В о взводе (ему равному) проводится под руководством заместителя командира взвода или командира отделения",
+                "Во  взводе проводится спортивным организатором взвода  (ему равному)",
+                "В роте проводится командиром роты   (ему равному)"
+            ],
+            type: "single"
+        },
+        {
+            text: "Продолжительность утренней физической зарядки для курсантов в образовательных организациях (согласно Наставлению по физической подготовке в ВС РФ). (Выберете правильный ответ из предложенных).",
+            correct: ["30 минут"],
+            options: ["30 минут", "50 минут", "20 минут"],
+            type: "single"
+        },
+        {
+            text: "Этапы обучения физическому упражнению (согласно Наставлению по  физической подготовке в ВС РФ). (Выберете правильные ответы из предложенных).",
+            correct: ["Ознакомление", "Разучивание", "Тренировка"],
+            options: [
+                "Ознакомление", "Разучивание", "Тренировка", "Рассказ",
+                "С помощью подготовительных упражнений"
+            ],
+            type: "multi"
+        },
+        {
+            text: "Последовательность ознакомления военнослужащего с физическим упражнением (согласно Наставлению по  физической подготовке в ВС РФ). (Выберете правильный ответ из предложенных).",
+            correct: ["Назвать физическое упражнение, пока зать технику выполнения упражнения  и объяснить его предназначение."],
+            options: [
+                "Назвать физическое упражнение, пока зать технику выполнения упражнения  и объяснить его предназначение.",
+                "Показать упражнение, назвать упражнение, определит способ обучения",
+                "Назвать упражнение, показать упражнение, приступить к выполнению упражнения"
+            ],
+            type: "single"
+        },
+        {
+            text: "Перечислите способы разучивания физического упражнения. (согласно Наставлению по физической подготовке в ВС РФ). (Выберете правильные ответы из предложенных).",
+            correct: [
+                "В целом.", "По частям.", "По разделениям.",
+                "С помощью подготовительных физических упражнений."
+            ],
+            options: [
+                "В целом.", "По частям.", "По разделениям.",
+                "С помощью подготовительных физических упражнений.",
+                "Повторный.", "Способ максимальных усилий.", "Рассказ.", "Показ."
+            ],
+            type: "multi"
+        },
+        {
+            text: "Перечислите основные физические качества. (Выберете правильные ответы из предложенных).",
+            correct: ["Сила", "Быстрота", "Выносливость", "Ловкость"],
+            options: [
+                "Сила", "Быстрота", "Выносливость", "Ловкость",
+                "Скоростная выносливость", "Координация", "Гибкость", "силовая выносливость"
+            ],
+            type: "multi"
+        },
+        {
+            text: "Перечислите основные методы развития физических качеств (согласно Наставлению по физической подготовке в ВС РФ) (Выберете правильные ответы из предложенных).",
+            correct: [
+                "Равномерный", "Повторный", "Интервальный", "Переменный",
+                "Максимальных усилий", "Контрольный", "Соревновательный"
+            ],
+            options: [
+                "Равномерный", "Повторный", "Интервальный", "Переменный",
+                "Максимальных усилий", "Контрольный", "Соревновательный",
+                "Аутотренинг", "Визуализационный", "Мотивационный", "Альтернативный"
+            ],
+            type: "multi"
+        },
+        {
+            text: "Перечислите общие физические упражнения (согласно Наставлению по физической подготовке в ВС РФ). (Выберете правильные ответы из предложенных).",
+            correct: ["Подтягивание на перекладине", "Бег на 100 м", "Бег на 1 км"],
+            options: [
+                "Подтягивание на перекладине", "Бег на 100 м", "Бег на 1 км",
+                "Упор на предплечьях", "Вис на перекладине", "Бег на 800 м с оружием"
+            ],
+            type: "multi"
+        },
+        {
+            text: "Перечислите специальные физические упражнения (согласно Наставлению по физической подготовке в ВС РФ). (Выберете правильные ответы из предложенных).",
+            correct: [
+                "Метание гранат н точность", "Поднимание ящика для боеприпасов",
+                "Бег на 60 м в экипировке с автоматом"
+            ],
+            options: [
+                "Метание гранат н точность", "Поднимание ящика для боеприпасов",
+                "Бег на 60 м в экипировке с автоматом", "Подъем силой на перекладине",
+                "Челночный бег 10х10 м", "Бег на 5 км"
+            ],
+            type: "multi"
+        },
+        {
+            text: "Выберете упражнения для оценки физического качества быстрота (согласно Наставлению по физической подготовке в ВС РФ). (Выберете правильные ответы из предложенных).",
+            correct: ["Бег на 100 м", "Челночный бег 10х10 м"],
+            options: [
+                "Бег на 100 м", "Челночный бег 10х10 м",
+                "Челночный бег с оружием 4х100 м", "Бег в экипировке на 60 м с автоматом"
+            ],
+            type: "multi"
+        },
+        {
+            text: "Выберете упражнения для оценки физического качества выносливость (согласно Наставлению по физической подготовке в ВС РФ). (Выберете правильные ответы из предложенных).",
+            correct: ["Бег на 1 км", "Бег на 400 м", "Восхождение на платформу (тумбу)"],
+            options: [
+                "Бег на 1 км", "Бег на 400 м", "Восхождение на платформу (тумбу)",
+                "Марш-бросок на 5 км", "Общее контрольное упражнение на единой полосе препятствий",
+                "Бег на 800 м с оружием"
+            ],
+            type: "multi"
+        },
+        {
+            text: "Выберете упражнения для оценки физического качества сила (согласно Наставлению по физической по дготовке в ВС РФ). ( Выберете правильные ответы из предложенных).",
+            correct: [
+                "Подтягивание на перекладине", "Подъем силой на перекладине",
+                "Подъем переворотом на перекладине", "Поднимание ног к перекладине"
+            ],
+            options: [
+                "Подтягивание на перекладине", "Вис на перекладине", "Подъем силой на перекладине",
+                "Упор на предплечьях", "Подъем переворотом на перекладине", "Поднимание ног к перекладине"
+            ],
+            type: "multi"
+        },
+        {
+            text: "Какое количество физических упражнений выполняют курсанты 1-х курсов при оценке уровня физической подготовленности. (Выберете правильный ответ из предложенных).",
+            correct: ["4 упражнений"],
+            options: ["4 упражнений", "3 упражнения", "5 упражнений"],
+            type: "single"
+        },
+        {
+            text: "Какое количество физических упражнений выполняют курсанты 2-х курсов и старше при оценке уровня физической подготовленности. (Выберете правильный ответ из предложенных).",
+            correct: ["5 упражнений"],
+            options: ["5 упражнений", "4 упражнения", "3 упражнения"],
+            type: "single"
+        },
+        {
+            text: "Укажите соответствие количества баллов оценке за выполнение одного физического упражнения для курсанта 3 курса и старше. (Сопоставьте правильные ответы из предложенных).",
+            type: "match",
+            left: ["65 баллов", "70 баллов", "75 баллов"],
+            right: ["«Удовлетворительно»", "«Хорошо»", "«Отлично»"],
+            correctPairs: [
+                ["65 баллов", "«Удовлетворительно»"],
+                ["70 баллов", "«Хорошо»"],
+                ["75 баллов", "«Отлично»"]
+            ]
+        },
+        {
+            text: "Какое минимальное количество баллов необходимо набрать в одном физическом упражнении при оценке уровня физической подготовленности для курсанта 3-го курса и старше. (Выберете правильный ответ из предложенных).",
+            correct: ["38 баллов"],
+            options: ["30 баллов", "34 балла", "36 баллов", "38 баллов"],
+            type: "single"
+        },
+        {
+            text: "В каких случаях уровень физической подготовленности военнослужащего оценивается неудовлетворительно (согласно Наставлению по физической подготовке в ВС РФ). (Выберете правильный ответ из предложенных).",
+            correct: [
+                "Физическое  упражнение не выполнено;",
+                "Не  набран минимум баллов в одном физическом упражнении;",
+                "Набранная  сумма баллов ниже су ммы баллов на оценку «удовлетворительно»",
+                "Военнослужащий  отсутствовал на  проверке по физической подготов ке без уважительной причины или отказался без уважительной причины от выполнения физического  упражнения"
+            ],
+            options: [
+                "Физическое  упражнение не выполнено;",
+                "Не  набран минимум баллов в одном физическом упражнении;",
+                "Набранная  сумма баллов ниже су ммы баллов на оценку «удовлетворительно»",
+                "Военнослужащий  отсутствовал на  проверке по физической подготов ке без уважительной причины или отказался без уважительной причины от выполнения физического  упражнения"
+            ],
+            type: "multi"
+        },
+        {
+            text: "Оценка уровня теоретической подготовленности военнослужащих, проходящих военную службу на должностях курсантов. (Сопоставьте процент правильных ответов на вопросы тестового задания и оценку).",
+            type: "match",
+            left: ["Менее 70 %", "70 %", "80 %", "90 %"],
+            right: ["«Неудовлетворительно»", "«Удовлетворительно»", "«Хорошо»", "«Отлично»"],
+            correctPairs: [
+                ["Менее 70 %", "«Неудовлетворительно»"],
+                ["70 %", "«Удовлетворительно»"],
+                ["80 %", "«Хорошо»"],
+                ["90 %", "«Отлично»"]
+            ]
+        },
+        {
+            text: "Оценка уровня методической подготовленности военнослужащих, проходящих военную  службу на должностях курсантов. (Сопоставьте количество выполненных показателей методического задания и оценку).",
+            type: "match",
+            left: ["Выполнено 2 и менее  п оказателей", "Выполнено 3 п оказателя", "Выполнено 4 п оказателя", "Выполнено 5 по казателей"],
+            right: ["«Неудовлетворительно»", "«Удовлетворительно»", "«Хорошо»", "«Отлично»"],
+            correctPairs: [
+                ["Выполнено 2 и менее  п оказателей", "«Неудовлетворительно»"],
+                ["Выполнено 3 п оказателя", "«Удовлетворительно»"],
+                ["Выполнено 4 п оказателя", "«Хорошо»"],
+                ["Выполнено 5 по казателей", "«Отлично»"]
+            ]
+        },
+        {
+            text: "Как определяется оценка курсанту по учебной дисциплине \"Физическая подготовка\". (Сопоставьте правильные ответы из предложенных).",
+            type: "match",
+            left: [
+                "Если более половины оценок удовлетворительные при отсутствии неудовлетворительных оценок, или если получена одна неудовлетворительная оценка при наличии отличной оценки за уровень физической подготовленности",
+                "Если не менее двух оценок не ниже хорошей (в том числе за уровень физической подготовленности) и одна не ниже  удовлетворительной",
+                "Если не менее двух оценок отличные (в том числе за уровень физической подготовленности) и одна не ниже хорошей",
+                "Если не выполнены условия для оценки «удовлетворительно»."
+            ],
+            right: ["«Удовлетворительно»", "«Хорошо»", "«Отлично»", "«Неудовлетворительно»"],
+            correctPairs: [
+                ["Если более половины оценок удовлетворительные при отсутствии неудовлетворительных оценок, или если получена одна неудовлетворительная оценка при наличии отличной оценки за уровень физической подготовленности", "«Удовлетворительно»"],
+                ["Если не менее двух оценок не ниже хорошей (в том числе за уровень физической подготовленности) и одна не ниже  удовлетворительной", "«Хорошо»"],
+                ["Если не менее двух оценок отличные (в том числе за уровень физической подготовленности) и одна не ниже хорошей", "«Отлично»"],
+                ["Если не выполнены условия для оценки «удовлетворительно».", "«Неудовлетворительно»"]
+            ]
+        },
+        {
+            text: "Допускается ли военнослужащий, отнесенный к IIIа или IIIб группе здоровья к проверке уровня физической подготовленности? (согласно Наставлению по физической подготовке в ВС РФ). (Выберете правильный ответ из предложенных).",
+            correct: ["По согласованию с врачом воинской части допускается к проверке  уровня физической подготовленности  с учетом заключения врачей-специалистов по профилю имеющихся у военнослужащего заболевания"],
+            options: [
+                "По согласованию с врачом воинской части допускается к проверке  уровня физической подготовленности  с учетом заключения врачей-специалистов по профилю имеющихся у военнослужащего заболевания",
+                "К проверке  уровня физической подготовленности  не допускается."
+            ],
+            type: "single"
+        }
+    ];
+
+    function shuffleArray(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    function prepareQuestion(originalQ) {
+        if (originalQ.type === "match") {
+            const leftShuffled = shuffleArray([...originalQ.left]);
+            const rightShuffled = shuffleArray([...originalQ.right]);
+            return {
+                text: originalQ.text,
+                type: "match",
+                left: leftShuffled,
+                right: rightShuffled,
+                correctPairs: originalQ.correctPairs,
+                userPairs: []
+            };
+        } else {
+            const shuffledOpts = shuffleArray([...originalQ.options]);
+            return {
+                text: originalQ.text,
+                correct: [...originalQ.correct],
+                options: shuffledOpts,
+                type: originalQ.type,
+                userAnswers: originalQ.type === "single" ? null : []
+            };
+        }
+    }
+
+    function generateTest() {
+        return QUESTION_BANK.map(q => prepareQuestion(q));
+    }
+
+    let currentTest = [];
+    let currentIndex = 0;
+    let quizFinished = false;
+    const container = document.getElementById('quizDynamicContent');
+    let matchSelectedLeft = null;
+
+    function isQuestionCorrect(question) {
+        if (question.type === "single") {
+            return question.userAnswers === question.correct[0];
+        } else if (question.type === "multi") {
+            const userSet = new Set(question.userAnswers);
+            const correctSet = new Set(question.correct);
+            if (userSet.size !== correctSet.size) return false;
+            for (let item of correctSet) if (!userSet.has(item)) return false;
+            return true;
+        } else if (question.type === "match") {
+            if (question.userPairs.length !== question.correctPairs.length) return false;
+            const sortedUser = [...question.userPairs].sort((a,b) => a[0].localeCompare(b[0]));
+            const sortedCorrect = [...question.correctPairs].sort((a,b) => a[0].localeCompare(b[0]));
+            return JSON.stringify(sortedUser) === JSON.stringify(sortedCorrect);
+        }
+        return false;
+    }
+
+    function handleMatchSelect(question, side, value) {
+        if (side === 'left') {
+            matchSelectedLeft = value;
+        } else if (side === 'right') {
+            if (matchSelectedLeft !== null) {
+                const already = question.userPairs.some(p => p[0] === matchSelectedLeft);
+                if (!already) {
+                    question.userPairs.push([matchSelectedLeft, value]);
+                }
+                matchSelectedLeft = null;
+            }
+        }
+        render();
+    }
+
+    function removeMatchPair(question, leftVal) {
+        question.userPairs = question.userPairs.filter(p => p[0] !== leftVal);
+        render();
+    }
+
+    function render() {
+        if (quizFinished) {
+            renderResults();
+        } else {
+            renderQuestion();
+        }
+    }
+
+    function renderQuestion() {
+        if (!currentTest.length || currentIndex >= currentTest.length) return;
+        const q = currentTest[currentIndex];
+        const total = currentTest.length;
+        const qNum = currentIndex + 1;
+
+        if (q.type === "match") {
+            let leftHtml = '';
+            q.left.forEach(leftVal => {
+                const matchedPair = q.userPairs.find(p => p[0] === leftVal);
+                const isMatched = !!matchedPair;
+                const selectedClass = (matchSelectedLeft === leftVal) ? 'selected' : '';
+                leftHtml += `<div class="match-left-item ${selectedClass} ${isMatched ? 'matched' : ''}" data-left="${escapeHtml(leftVal)}">${escapeHtml(leftVal)}${isMatched ? ' → ' + escapeHtml(matchedPair[1]) : ''}</div>`;
+            });
+            let rightHtml = '';
+            q.right.forEach(rightVal => {
+                const isMatched = q.userPairs.some(p => p[1] === rightVal);
+                rightHtml += `<div class="match-right-item ${isMatched ? 'matched' : ''}" data-right="${escapeHtml(rightVal)}">${escapeHtml(rightVal)}${isMatched ? ' ✓' : ''}</div>`;
+            });
+            let pairsHtml = '<div class="match-pairs"><strong>✅ Составленные пары:</strong>';
+            if (q.userPairs.length === 0) {
+                pairsHtml += '<div style="color:#64748b;font-style:italic">Пока нет пар</div>';
+            } else {
+                q.userPairs.forEach(pair => {
+                    pairsHtml += `<div class="match-pair"><span>${escapeHtml(pair[0])}</span><span>→ ${escapeHtml(pair[1])}<button class="remove-pair-btn" data-left="${escapeHtml(pair[0])}">✖</button></span></div>`;
+                });
+            }
+            pairsHtml += '</div>';
+
+            const html = `
+                <div class="quiz-body">
+                    <div class="question-progress">Вопрос ${qNum} из ${total} (сопоставление)</div>
+                    <div class="question-text">${escapeHtml(q.text)}</div>
+                    <div class="match-container">
+                        <div class="match-col"><h4>📌 Левая колонка</h4>${leftHtml}</div>
+                        <div class="match-col"><h4>🔗 Правая колонка</h4>${rightHtml}</div>
+                    </div>
+                    ${pairsHtml}
+                    <div class="nav-buttons">
+                        <button id="prevBtn" ${currentIndex === 0 ? 'disabled' : ''}>◀ Назад</button>
+                        <button id="nextBtn" class="primary-btn">${currentIndex === total-1 ? 'Завершить тест' : 'Далее ▶'}</button>
+                    </div>
+                </div>
+            `;
+            container.innerHTML = html;
+
+            document.querySelectorAll('.match-left-item').forEach(el => {
+                if (!el.classList.contains('matched')) {
+                    el.addEventListener('click', () => {
+                        matchSelectedLeft = el.getAttribute('data-left');
+                        render();
+                    });
+                }
+            });
+            document.querySelectorAll('.match-right-item').forEach(el => {
+                if (!el.classList.contains('matched')) {
+                    el.addEventListener('click', () => {
+                        handleMatchSelect(q, 'right', el.getAttribute('data-right'));
+                    });
+                }
+            });
+            document.querySelectorAll('.remove-pair-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    removeMatchPair(q, btn.getAttribute('data-left'));
+                });
+            });
+            document.getElementById('prevBtn')?.addEventListener('click', () => {
+                if (currentIndex > 0) { currentIndex--; matchSelectedLeft = null; render(); }
+            });
+            document.getElementById('nextBtn')?.addEventListener('click', () => {
+                if (currentIndex === total-1) finishTest();
+                else { currentIndex++; matchSelectedLeft = null; render(); }
+            });
+        } else {
+            let answersHtml = '';
+            q.options.forEach(opt => {
+                let isSelected = false;
+                if (q.type === 'single') isSelected = (q.userAnswers === opt);
+                else isSelected = q.userAnswers.includes(opt);
+                const selectedClass = isSelected ? 'selected' : '';
+                answersHtml += `<div class="answer-item ${q.type === 'single' ? 'radio-style' : ''} ${selectedClass}" data-answer="${escapeHtml(opt)}">
+                    <div class="answer-check">${q.type === 'single' ? '○' : '✓'}</div>
+                    <div class="answer-text">${escapeHtml(opt)}</div>
+                </div>`;
+            });
+            const html = `
+                <div class="quiz-body">
+                    <div class="question-progress">Вопрос ${qNum} из ${total}</div>
+                    <div class="question-text">${escapeHtml(q.text)}</div>
+                    <div class="answers-area" id="answersArea">${answersHtml}</div>
+                    <div class="nav-buttons">
+                        <button id="prevBtn" ${currentIndex === 0 ? 'disabled' : ''}>◀ Назад</button>
+                        <button id="nextBtn" class="primary-btn">${currentIndex === total-1 ? 'Завершить тест' : 'Далее ▶'}</button>
+                    </div>
+                </div>
+            `;
+            container.innerHTML = html;
+            document.querySelectorAll('.answer-item').forEach(div => {
+                div.addEventListener('click', () => {
+                    const answerVal = div.getAttribute('data-answer');
+                    if (q.type === 'single') q.userAnswers = answerVal;
+                    else {
+                        const idx = q.userAnswers.indexOf(answerVal);
+                        if (idx === -1) q.userAnswers.push(answerVal);
+                        else q.userAnswers.splice(idx, 1);
+                    }
+                    render();
+                });
+            });
+            document.getElementById('prevBtn')?.addEventListener('click', () => {
+                if (currentIndex > 0) { currentIndex--; render(); }
+            });
+            document.getElementById('nextBtn')?.addEventListener('click', () => {
+                if (q.type === 'single' && q.userAnswers === null) { alert('Выберите ответ'); return; }
+                if (q.type === 'multi' && q.userAnswers.length === 0) { alert('Выберите хотя бы один вариант'); return; }
+                if (currentIndex === total-1) finishTest();
+                else { currentIndex++; render(); }
+            });
+        }
+    }
+
+    function finishTest() { quizFinished = true; render(); }
+
+    function renderResults() {
+        let correctCount = 0;
+        const reviews = [];
+        
+        for (let i = 0; i < currentTest.length; i++) {
+            const q = currentTest[i];
+            const isCorrect = isQuestionCorrect(q);
+            if (isCorrect) correctCount++;
+            
+            let userAnswerStr = '';
+            let correctAnswerStr = '';
+            
+            if (q.type === 'single') {
+                userAnswerStr = q.userAnswers || 'Не выбран';
+                correctAnswerStr = q.correct[0];
+            } else if (q.type === 'multi') {
+                userAnswerStr = q.userAnswers.length ? q.userAnswers.join(', ') : 'Не выбрано';
+                correctAnswerStr = q.correct.join(', ');
+            } else if (q.type === 'match') {
+                userAnswerStr = q.userPairs.map(p => `${p[0]} → ${p[1]}`).join('; ') || 'Нет пар';
+                correctAnswerStr = q.correctPairs.map(p => `${p[0]} → ${p[1]}`).join('; ');
+            }
+            
+            reviews.push({
+                question: q.text,
+                isCorrect,
+                userAnswer: userAnswerStr,
+                correctAnswer: correctAnswerStr,
+                type: q.type
+            });
+        }
+        
+        const wrongCount = currentTest.length - correctCount;
+        
+        let reviewsHtml = '';
+        reviews.forEach((r, idx) => {
+            const statusClass = r.isCorrect ? 'correct' : 'incorrect';
+            const statusIcon = r.isCorrect ? '✅' : '❌';
+            const statusText = r.isCorrect ? 'Верно' : 'Ошибка';
+            
+            reviewsHtml += `
+                <div class="question-review ${statusClass}">
+                    <div class="question-review-header ${statusClass}">
+                        <span>${statusIcon}</span>
+                        <span>Вопрос ${idx + 1}: ${statusText}</span>
+                    </div>
+                    <div class="question-review-text">${escapeHtml(r.question)}</div>
+                    <div class="answer-review user ${r.isCorrect ? 'correct' : 'incorrect'}">
+                        <strong>Ваш ответ:</strong> ${escapeHtml(r.userAnswer)}
+                    </div>
+                    ${!r.isCorrect ? `<div class="answer-review correct-answer"><strong>Правильный ответ:</strong> ${escapeHtml(r.correctAnswer)}</div>` : ''}
+                </div>
+            `;
+        });
+        
+        const resultHtml = `
+            <div class="quiz-body">
+                <div class="result-stats">📊 Результат: ${correctCount} / ${currentTest.length} (${Math.round(correctCount/currentTest.length*100)}%)</div>
+                <div style="text-align:center;margin-bottom:16px;">✔️ Верно: ${correctCount} | ❌ Неверно: ${wrongCount}</div>
+                <div style="margin-top:16px;"><strong>📋 Разбор всех вопросов:</strong></div>
+                ${reviewsHtml}
+                <button id="restartBtn" class="restart-button">🔄 Пройти тест заново</button>
+            </div>
+        `;
+        container.innerHTML = resultHtml;
+        document.getElementById('restartBtn')?.addEventListener('click', resetAndRestart);
+    }
+
+    function resetAndRestart() {
+        currentTest = generateTest();
+        currentIndex = 0;
+        quizFinished = false;
+        matchSelectedLeft =
