@@ -28,7 +28,7 @@
         }
         .test-header h1 { font-size: 1.3rem; margin-bottom: 6px; font-weight: 600; }
         .test-header p { opacity: 0.9; font-size: 0.85rem; }
-        .quiz-body { padding: 16px 20px; }
+        .quiz-body { padding: 16px 20px; min-height: 300px; }
         .question-progress {
             background: #e9ecef;
             display: inline-block;
@@ -91,7 +91,6 @@
             border-color: #2563eb;
             color: white;
         }
-        /* Сопоставление — мобильная версия */
         .match-container {
             display: flex;
             flex-direction: column;
@@ -275,7 +274,6 @@
             border-top: 1px solid #e2e8f0;
             line-height: 1.3;
         }
-        /* Улучшения для мобильных */
         @media (max-width: 480px) {
             body { padding: 8px 4px; font-size: 13px; }
             .test-card { border-radius: 20px; }
@@ -289,7 +287,6 @@
             button { padding: 12px 16px; font-size: 0.9rem; min-height: 46px; }
             .nav-buttons { padding: 10px 0 2px; gap: 8px; }
         }
-        /* Предотвращение выделения текста при тапах */
         .answer-item, .match-left-item, .match-right-item, button {
             -webkit-touch-callout: none;
             -webkit-user-select: none;
@@ -298,21 +295,27 @@
             -ms-user-select: none;
             user-select: none;
         }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #64748b;
+        }
     </style>
 </head>
 <body>
 <div class="test-wrapper">
     <div class="test-card" id="app">
         <div class="test-header">
-            <h1>🏋️‍♂️ Физическая подготовка ВС РФ</h1>
+            <h1>🏋️♂️ Физическая подготовка ВС РФ</h1>
             <p>30 вопросов • полный тест</p>
         </div>
-        <div id="quizDynamicContent"></div>
+        <div id="quizDynamicContent"><div class="loading">Загрузка теста...</div></div>
         <div class="footer-note">✔️ Порядок ответов случайный. Для сопоставления: тапните слева, затем справа.</div>
     </div>
 </div>
 
 <script>
+document.addEventListener('DOMContentLoaded', function() {
     const QUESTION_BANK = [
         {
             text: "Каким руководящим документом определен порядок организации физической подготовки военнослужащих ВС РФ, в том числе требования к уровню физической подготовленности военнослужащих. (Выберете правильный ответ из предложенных).",
@@ -941,4 +944,36 @@
         currentTest = generateTest();
         currentIndex = 0;
         quizFinished = false;
-        matchSelectedLeft =
+        matchSelectedLeft = null;
+        render();
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    }
+
+    function init() {
+        try {
+            if (!container) {
+                console.error('Контейнер #quizDynamicContent не найден!');
+                return;
+            }
+            currentTest = generateTest();
+            currentIndex = 0;
+            quizFinished = false;
+            matchSelectedLeft = null;
+            render();
+            console.log('Тест успешно загружен. Вопросов:', currentTest.length);
+        } catch (error) {
+            console.error('Ошибка при инициализации теста:', error);
+            container.innerHTML = `<div class="loading" style="color:#dc2626">Ошибка загрузки теста. Обновите страницу.</div>`;
+        }
+    }
+
+    // Запуск теста
+    init();
+});
+</script>
+</body>
+</html>
